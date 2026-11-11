@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 import uuid
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.database import async_session_maker
+from app.database import async_session_maker, engine, Base
 from app.models import (
     Organization, Branch, Category, Product, Modifier,
     User, Order, LoyaltyAccount, Staff,
@@ -18,6 +18,10 @@ from app.models import (
 
 async def init_demo_data():
     """Initialize demo café and sample data"""
+
+    # Create all tables first
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
     async with async_session_maker() as session:
         # Create MONO COFFEE organization
