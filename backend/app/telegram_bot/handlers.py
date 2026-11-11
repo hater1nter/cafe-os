@@ -18,7 +18,13 @@ from app.services.payment import PaymentService
 logger = structlog.get_logger()
 
 # Initialize bot and dispatcher
-bot = Bot(token=settings.telegram_bot_token)
+# Skip bot creation if token is not configured (for development/deployment setup)
+if settings.telegram_bot_token and len(settings.telegram_bot_token) > 10:
+    bot = Bot(token=settings.telegram_bot_token)
+else:
+    bot = None
+    logger.warning("Telegram bot token not configured or invalid - bot features disabled")
+
 dp = Dispatcher()
 
 
