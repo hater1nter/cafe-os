@@ -56,7 +56,7 @@ async def get_menu(
     )
 
 
-@router.get("/orders/{order_id}/tracking-widget")
+@router.get("/orders/{order_id}/tracking-widget", response_model=None)
 async def get_tracking_widget(
     order_id: UUID,
     telegram_id: str = Query(...),
@@ -288,7 +288,7 @@ async def cancel_order(
     return OrderResponse.from_orm(order)
 
 
-@router.get("/user/profile")
+@router.get("/user/profile", response_model=None)
 async def get_user_profile(
     telegram_id: str = Query(...),
     org_id: UUID = Query(..., alias="organization_id"),
@@ -308,7 +308,7 @@ async def get_user_profile(
     }
 
 
-@router.get("/user/loyalty-card")
+@router.get("/user/loyalty-card", response_model=None)
 async def get_loyalty_card(
     telegram_id: str = Query(...),
     org_id: UUID = Query(..., alias="organization_id"),
@@ -338,7 +338,7 @@ async def get_loyalty_card(
     }
 
 
-@router.post("/orders/{order_id}/checkout")
+@router.post("/orders/{order_id}/checkout", response_model=None)
 async def checkout_order(
     order_id: UUID,
     telegram_id: str = Query(...),

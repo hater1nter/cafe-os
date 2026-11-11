@@ -15,7 +15,7 @@ logger = structlog.get_logger()
 router = APIRouter(prefix="/admin")
 
 
-@router.get("/dashboard")
+@router.get("/dashboard", response_model=None)
 async def admin_dashboard(
     org_id: UUID = Query(..., alias="organization_id"),
     db: AsyncSession = Depends(get_db)
@@ -61,7 +61,7 @@ async def admin_dashboard(
     }
 
 
-@router.get("/orders")
+@router.get("/orders", response_model=None)
 async def admin_orders(
     org_id: UUID = Query(..., alias="organization_id"),
     status: OrderStatusEnum = Query(None),
@@ -86,7 +86,7 @@ async def admin_orders(
     }
 
 
-@router.patch("/orders/{order_id}/status")
+@router.patch("/orders/{order_id}/status", response_model=None)
 async def update_order_status(
     order_id: UUID,
     new_status: OrderStatusEnum = Query(...),
