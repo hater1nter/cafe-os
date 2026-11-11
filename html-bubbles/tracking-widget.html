@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Tracking</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f1e8;
+            padding: 16px;
+            color: #34251f;
+        }
+
+        .tracking-container {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 12px rgba(36, 24, 19, 0.1);
+            max-width: 540px;
+            margin: 0 auto;
+        }
+
+        .order-header {
+            text-align: center;
+            margin-bottom: 24px;
+            border-bottom: 1px solid #f0ebe2;
+            padding-bottom: 16px;
+        }
+
+        .order-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: #241813;
+            letter-spacing: -1px;
+        }
+
+        .order-status {
+            font-size: 13px;
+            color: #95877d;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 8px;
+        }
+
+        .order-status.active {
+            color: #c58b58;
+            font-weight: 600;
+        }
+
+        .timeline {
+            position: relative;
+            padding: 0 12px;
+            margin: 24px 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #f0ebe2;
+            transform: translateX(-50%);
+        }
+
+        .timeline-step {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .timeline-step:last-child {
+            margin-bottom: 0;
+        }
+
+        .timeline-marker {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            width: 16px;
+            height: 16px;
+            background: white;
+            border: 3px solid #e8ddd0;
+            border-radius: 50%;
+            transform: translateX(-50%);
+            transition: all 0.3s ease;
+            z-index: 2;
+        }
+
+        .timeline-step.completed .timeline-marker {
+            background: #c58b58;
+            border-color: #c58b58;
+            box-shadow: 0 0 0 4px rgba(197, 139, 88, 0.1);
+        }
+
+        .timeline-step.active .timeline-marker {
+            background: #c58b58;
+            border-color: #c58b58;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: translateX(-50%) scale(1); }
+            50% { transform: translateX(-50%) scale(1.2); }
+        }
+
+        .timeline-content {
+            padding-left: 40px;
+            padding-right: 40px;
+        }
+
+        .timeline-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #95877d;
+            margin-bottom: 4px;
+        }
+
+        .timeline-step.completed .timeline-label {
+            color: #9aa58c;
+        }
+
+        .timeline-step.active .timeline-label {
+            color: #c58b58;
+        }
+
+        .timeline-description {
+            font-size: 13px;
+            color: #34251f;
+            opacity: 0.6;
+        }
+
+        .timeline-step.completed .timeline-description {
+            opacity: 1;
+            color: #34251f;
+        }
+
+        .timeline-step.active .timeline-description {
+            opacity: 1;
+            color: #34251f;
+            font-weight: 500;
+        }
+
+        .eta-section {
+            background: #f7f2e9;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .eta-label {
+            font-size: 12px;
+            color: #95877d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .eta-time {
+            font-size: 24px;
+            font-weight: 700;
+            color: #c58b58;
+        }
+
+        .eta-message {
+            font-size: 12px;
+            color: #95877d;
+            margin-top: 4px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #e8ddd0;
+            border-radius: 2px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #c58b58 0%, #9aa58c 100%);
+            transition: width 0.4s ease;
+            border-radius: 2px;
+        }
+
+        .order-items {
+            margin: 20px 0;
+            padding: 16px;
+            background: #fffdf8;
+            border-radius: 8px;
+            border: 1px solid #f0ebe2;
+        }
+
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+
+        .item-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .item-name {
+            color: #34251f;
+            font-weight: 500;
+        }
+
+        .item-qty {
+            color: #95877d;
+            font-size: 12px;
+        }
+
+        .item-price {
+            color: #34251f;
+            font-weight: 600;
+        }
+
+        .order-total {
+            display: flex;
+            justify-content: space-between;
+            font-size: 16px;
+            font-weight: 700;
+            color: #241813;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #f0ebe2;
+        }
+
+        .branch-info {
+            font-size: 12px;
+            color: #95877d;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #f0ebe2;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #95877d;
+            font-size: 13px;
+        }
+
+        .error {
+            background: #fee2e2;
+            color: #7c2d2d;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 12px 0;
+            font-size: 12px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 8px;
+        }
+
+        .status-badge.received {
+            background: #e8ddd0;
+            color: #95877d;
+        }
+
+        .status-badge.confirmed {
+            background: #d4e5d9;
+            color: #6b8c73;
+        }
+
+        .status-badge.preparing {
+            background: #fef0e5;
+            color: #c58b58;
+        }
+
+        .status-badge.ready {
+            background: #d4e5d9;
+            color: #6b8c73;
+        }
+
+        .status-badge.completed {
+            background: #c8e5c0;
+            color: #4a7c4e;
+        }
+    </style>
+</head>
+<body>
+    <div class="tracking-container">
+        <div class="order-header">
+            <div class="order-number" id="orderNumber">#{order_number}</div>
+            <div class="order-status" id="orderStatus">Preparing your order...</div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 33%"></div>
+        </div>
+
+        <div class="timeline" id="timeline">
+            <!-- Timeline will be generated by JavaScript -->
+        </div>
+
+        <div class="eta-section">
+            <div class="eta-label">Ready in</div>
+            <div class="eta-time" id="etaTime">15 min</div>
+            <div class="eta-message" id="etaMessage">Estimated time from now</div>
+        </div>
+
+        <div class="order-items">
+            <div id="itemsList">
+                <!-- Items will be populated here -->
+            </div>
+            <div class="order-total">
+                <span>Total:</span>
+                <span id="totalPrice">₽0.00</span>
+            </div>
+            <div class="branch-info" id="branchInfo">
+                MONO COFFEE Main
+            </div>
+        </div>
+
+        <div id="errorContainer"></div>
+    </div>
+
+    <script>
+        const ORDER_ID = '{order_id}';
+        const ORG_ID = '{org_id}';
+        const API_BASE = window.location.origin + '/api/v1';
+        const POLL_INTERVAL = 5000; // 5 seconds
+
+        const STATUSES = {
+            'received': { label: '01 — ORDER RECEIVED', icon: '📋' },
+            'confirmed': { label: '02 — CONFIRMED', icon: '✓' },
+            'preparing': { label: '03 — IN PREPARATION', icon: '☕' },
+            'almost_ready': { label: '04 — ALMOST READY', icon: '⏱' },
+            'ready': { label: '05 — READY FOR PICKUP', icon: '✓' },
+            'completed': { label: '06 — COMPLETED', icon: '✓' }
+        };
+
+        async function fetchOrderStatus() {
+            try {
+                const response = await fetch(
+                    `${API_BASE}/customer/orders/${ORDER_ID}?organization_id=${ORG_ID}`,
+                    {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    }
+                );
+
+                if (!response.ok) throw new Error('Failed to fetch order');
+                return await response.json();
+            } catch (error) {
+                console.error('Error fetching order:', error);
+                return null;
+            }
+        }
+
+        function calculateProgress(status) {
+            const progressMap = {
+                'received': 16,
+                'confirmed': 33,
+                'preparing': 50,
+                'almost_ready': 66,
+                'ready': 83,
+                'completed': 100
+            };
+            return progressMap[status] || 0;
+        }
+
+        function calculateETA(etaDate) {
+            if (!etaDate) return null;
+
+            const eta = new Date(etaDate);
+            const now = new Date();
+            const diff = eta - now;
+
+            if (diff <= 0) return 'Ready now!';
+
+            const minutes = Math.ceil(diff / 60000);
+            return `${minutes} min`;
+        }
+
+        function renderTimeline(status) {
+            const steps = ['received', 'confirmed', 'preparing', 'almost_ready', 'ready', 'completed'];
+            const currentIndex = steps.indexOf(status);
+
+            const timeline = document.getElementById('timeline');
+            timeline.innerHTML = steps.map((step, index) => {
+                const isCompleted = index < currentIndex;
+                const isActive = index === currentIndex;
+                const stepData = STATUSES[step];
+
+                return `
+                    <div class="timeline-step ${isCompleted ? 'completed' : ''} ${isActive ? 'active' : ''}">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-label">${stepData.label}</div>
+                            <div class="timeline-description">
+                                ${isActive ? 'In progress now...' : isCompleted ? 'Completed' : 'Waiting'}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderOrder(order) {
+            // Update header
+            document.getElementById('orderNumber').textContent = `#${order.order_number}`;
+            document.getElementById('orderStatus').textContent = STATUSES[order.status]?.label || order.status;
+
+            // Update status badge
+            const statusClass = `status-badge ${order.status}`;
+            const statusBadge = document.querySelector('.status-badge');
+            if (statusBadge) statusBadge.className = statusClass;
+
+            // Update progress
+            const progress = calculateProgress(order.status);
+            document.getElementById('progressFill').style.width = progress + '%';
+
+            // Update timeline
+            renderTimeline(order.status);
+
+            // Update ETA
+            const eta = calculateETA(order.ready_eta);
+            if (eta) {
+                document.getElementById('etaTime').textContent = eta;
+                document.getElementById('etaMessage').textContent =
+                    new Date(order.ready_eta).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            }
+
+            // Update items
+            const itemsList = document.getElementById('itemsList');
+            itemsList.innerHTML = order.items.map(item => `
+                <div class="item-row">
+                    <div>
+                        <div class="item-name">${item.product_name}</div>
+                        <div class="item-qty">×${item.quantity}</div>
+                    </div>
+                    <div class="item-price">₽${(item.total_price / 100).toFixed(2)}</div>
+                </div>
+            `).join('');
+
+            // Update total
+            document.getElementById('totalPrice').textContent = `₽${(order.total / 100).toFixed(2)}`;
+
+            // Clear errors
+            document.getElementById('errorContainer').innerHTML = '';
+        }
+
+        async function pollOrder() {
+            const order = await fetchOrderStatus();
+            if (order) {
+                renderOrder(order);
+            } else {
+                const errorDiv = document.getElementById('errorContainer');
+                if (!errorDiv.textContent) {
+                    errorDiv.innerHTML = '<div class="error">⚠️ Connection lost. Retrying...</div>';
+                }
+            }
+        }
+
+        // Initial render
+        document.addEventListener('DOMContentLoaded', () => {
+            pollOrder();
+            setInterval(pollOrder, POLL_INTERVAL);
+        });
+    </script>
+</body>
+</html>
