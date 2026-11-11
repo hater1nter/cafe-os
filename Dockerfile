@@ -1,5 +1,6 @@
 FROM python:3.12-slim
 
+# Force rebuild - cache invalidation: 2026-11-12T00:47:33Z
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y \
