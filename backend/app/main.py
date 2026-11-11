@@ -2,9 +2,10 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import structlog
+import asyncio
 
 from app.config import settings
-from app.database import engine, Base
+from app.database import engine, Base, async_session_maker
 from app.schemas import HealthResponse
 
 # Setup logging
@@ -27,13 +28,30 @@ structlog.configure(
 logger = structlog.get_logger()
 
 
+async def init_db():
+    try:
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+        logger.info("Database tables created successfully")
+    except Exception as e:
+        logger.error(f"Failed to create database tables: {e}")
+
+
+async def init_demo_data():
+    try:
+        from init_demo_data import init_demo_data as init_data_func
+        await init_data_func()
+        logger.info("Demo data initialized successfully")
+    except Exception as e:
+        logger.warning(f"Demo data initialization skipped: {e}")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
     logger.info("Starting Café OS Backend", environment=settings.environment)
-    # Create tables if they don't exist
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    await init_db()
+    await init_demo_data()
     yield
     # Shutdown
     logger.info("Shutting down Café OS Backend")
