@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, HTTPException, status, Query
+from fastapi import APIRouter, Request, HTTPException, status, Query, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from uuid import UUID
@@ -13,16 +13,15 @@ logger = structlog.get_logger()
 router = APIRouter(prefix="/payments")
 
 
-@router.post("/webhook/yandex_kassa")
+@router.post("/webhook/yandex_kassa", response_model=None)
 async def yandex_kassa_webhook(
     request: Request,
     org_id: UUID = Query(..., alias="organization_id"),
-    db: AsyncSession = None
+    db: AsyncSession = Depends(get_db)
 ):
     """Yandex.Kassa payment webhook"""
     try:
         # Get organization
-        db = db or AsyncSession()
         org_result = await db.execute(
             select(Organization).where(Organization.id == org_id)
         )
@@ -76,7 +75,7 @@ async def yandex_kassa_webhook(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/webhook/yukassa")
+@router.post("/webhook/yukassa", response_model=None)
 async def yukassa_webhook(
     request: Request,
     org_id: UUID = Query(..., alias="organization_id"),
@@ -135,7 +134,7 @@ async def yukassa_webhook(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/webhook/sberpay")
+@router.post("/webhook/sberpay", response_model=None)
 async def sberpay_webhook(
     request: Request,
     org_id: UUID = Query(..., alias="organization_id"),
