@@ -1,6 +1,5 @@
 from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPBearer
-from starlette.authentication import HTTPAuthCredentials
+from fastapi.security import HTTPBearer, HTTPAuthenticationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime, timedelta
 from typing import Optional
@@ -49,7 +48,7 @@ async def verify_telegram_user(telegram_id: str, org_id: UUID, db: AsyncSession 
     return user
 
 
-async def verify_staff_token(credentials: HTTPAuthCredentials, db: AsyncSession = Depends(get_db)) -> Staff:
+async def verify_staff_token(credentials: HTTPAuthenticationCredentials, db: AsyncSession = Depends(get_db)) -> Staff:
     """Verify JWT token for staff access"""
     token = credentials.credentials
 
