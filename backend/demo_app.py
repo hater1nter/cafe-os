@@ -287,9 +287,9 @@ async def root():
 async def startup_event():
     print("🎯 Café OS — Demo Server Starting")
     print("📊 In-Memory Database Ready")
-    print("🚀 API Server Running on http://localhost:8000")
-    print("📖 Docs available at http://localhost:8000/docs")
+    print("🚀 API Server Running on http://localhost:8001")
+    print("📖 Docs available at http://localhost:8001/docs")
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8001)
